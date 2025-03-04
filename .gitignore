@@ -169,3 +169,12 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Folders
+
+Consolidated_Data/
+Data/
+
+# Files
+input.csv
+consolidated_patient_data.csv

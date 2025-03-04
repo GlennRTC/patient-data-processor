@@ -1,0 +1,9 @@
+Total rows: 294085
+Number of chunks: 6
+Chunk files:
+- Consolidated_Results_part_1.csv
+- Consolidated_Results_part_2.csv
+- Consolidated_Results_part_3.csv
+- Consolidated_Results_part_4.csv
+- Consolidated_Results_part_5.csv
+- Consolidated_Results_part_6.csv
