@@ -21,6 +21,7 @@ def safe_convert_to_float(value):
         return np.nan
 
 def consolidate_patient_data(input_file, output_dir, chunk_size=50000):
+
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
     
@@ -77,10 +78,27 @@ def consolidate_patient_data(input_file, output_dir, chunk_size=50000):
     
     # Apply the consolidation with chunking for large files
     consolidated_results = []
+
+    # Get total number of groups for progress tracking
+    total_groups = len(df.groupby(['Patient', 'CollectDate']).groups)
+    print(f"\nStarting consolidation of {total_groups} patient-date groups...")
     
-    # Group and process in chunks
+    # Setup progress tracking
+    processed_groups = 0
+    progress_interval = max(1, total_groups // 20)  # Update progress every 5%
+    
+    # Group and process with progress tracking
     for patient_date, group in df.groupby(['Patient', 'CollectDate']):
         consolidated_results.append(aggregate_columns(group))
+
+        # Update progress
+        processed_groups += 1
+        if processed_groups % progress_interval == 0 or processed_groups == total_groups:
+            percentage = (processed_groups / total_groups) * 100
+            progress_bar = '=' * int(percentage / 5) + '>' + ' ' * (20 - int(percentage / 5))
+            print(f"\rProgress: [{progress_bar}] {percentage:.1f}% ({processed_groups}/{total_groups})", end='')
+    
+    print()  # New line after progress bar completes
     
     # Convert list to DataFrame
     consolidated_df = pd.DataFrame(consolidated_results)
@@ -123,7 +141,7 @@ def consolidate_patient_data(input_file, output_dir, chunk_size=50000):
     print(f"\nProcessing complete. Total rows: {total_rows}")
     print(f"Chunks saved in directory: {output_dir}")
     print(f"Summary file created: {summary_file}")
-    
+   
     return consolidated_df
 
 def main():
@@ -145,6 +163,6 @@ def main():
     # Debugging: Print column info after processing
     print("\nColumn dtypes after processing:")
     print(result.dtypes)
-
+    
 if __name__ == "__main__":
     main()
