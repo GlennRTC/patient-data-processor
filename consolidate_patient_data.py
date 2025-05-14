@@ -48,6 +48,12 @@ def consolidate_patient_data(input_file, output_dir, chunk_size=50000):
         # Create a dictionary to store the consolidated row
         consolidated = {}
         
+        # First add Patient and CollectDate
+        consolidated['Patient'] = group['Patient'].iloc[0]
+        consolidated['CollectDate'] = group['CollectDate'].iloc[0]
+        # Add empty CollectTime field
+        consolidated['CollectTime'] = ''
+        
         # List of columns to consolidate
         columns_to_check = [
             'Contrato', 'Sucursal', 'IPS_Primaria', 'HbA1c', 'uAlb', 
@@ -65,10 +71,6 @@ def consolidate_patient_data(input_file, output_dir, chunk_size=50000):
                 consolidated[col] = valid_values[0]
             else:
                 consolidated[col] = np.nan
-        
-        # Add Patient and CollectDate
-        consolidated['Patient'] = group['Patient'].iloc[0]
-        consolidated['CollectDate'] = group['CollectDate'].iloc[0]
         
         return pd.Series(consolidated)
     
@@ -102,6 +104,15 @@ def consolidate_patient_data(input_file, output_dir, chunk_size=50000):
     
     # Convert list to DataFrame
     consolidated_df = pd.DataFrame(consolidated_results)
+    
+    # Ensure the columns are in the correct order
+    # First create a list of all columns in the desired order
+    first_columns = ['Patient', 'CollectDate', 'CollectTime']
+    other_columns = [col for col in consolidated_df.columns if col not in first_columns]
+    ordered_columns = first_columns + other_columns
+    
+    # Reorder the DataFrame columns
+    consolidated_df = consolidated_df[ordered_columns]
     
     # Sort by Patient and CollectDate
     consolidated_df = consolidated_df.sort_values(['Patient', 'CollectDate'])
